@@ -33,17 +33,66 @@ const PARSE_SYSTEM = `És um extractor de dados de currículos. Recebes o texto 
 {"name":"","job":"","email":"","phone":"","location":"","link":"","summary":"","experiences":[{"role":"","company":"","period":"","description":""}],"education":[{"course":"","school":"","period":"","description":""}],"skills":[""],"languages":[{"name":"","level":""}],"certificates":[{"name":"","issuer":"","year":""}],"interests":[""]}
 Regras: escreve em português de Moçambique; não inventes dados que não existam (usa string vazia ou lista vazia); em "description" usa uma frase por linha separada por \\n; mantém as datas tal como aparecem.`;
 
+const parsedSchema = z.object({
+  name: z.string().default(""),
+  job: z.string().default(""),
+  email: z.string().default(""),
+  phone: z.string().default(""),
+  location: z.string().default(""),
+  link: z.string().default(""),
+  summary: z.string().default(""),
+  experiences: z
+    .array(
+      z.object({
+        role: z.string().default(""),
+        company: z.string().default(""),
+        period: z.string().default(""),
+        description: z.string().default(""),
+      }),
+    )
+    .default([]),
+  education: z
+    .array(
+      z.object({
+        course: z.string().default(""),
+        school: z.string().default(""),
+        period: z.string().default(""),
+        description: z.string().default(""),
+      }),
+    )
+    .default([]),
+  skills: z.array(z.string()).default([]),
+  languages: z
+    .array(z.object({ name: z.string().default(""), level: z.string().default("") }))
+    .default([]),
+  certificates: z
+    .array(
+      z.object({
+        name: z.string().default(""),
+        issuer: z.string().default(""),
+        year: z.string().default(""),
+      }),
+    )
+    .default([]),
+  interests: z.array(z.string()).default([]),
+});
+
+export type ParsedCV = z.infer<typeof parsedSchema>;
+
 export const parseCVText = createServerFn({ method: "POST" })
   .inputValidator((input: { text: string }) => z.object({ text: z.string().min(20) }).parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<ParsedCV> => {
     const content = await chat(PARSE_SYSTEM, data.text.slice(0, 24000), true);
-    try {
-      return JSON.parse(content) as Record<string, unknown>;
-    } catch {
-      const match = content.match(/\{[\s\S]*\}/);
-      if (match) return JSON.parse(match[0]) as Record<string, unknown>;
-      throw new Error("Não foi possível ler o conteúdo do CV.");
-    }
+    const raw = (() => {
+      try {
+        return JSON.parse(content) as unknown;
+      } catch {
+        const match = content.match(/\{[\s\S]*\}/);
+        if (match) return JSON.parse(match[0]) as unknown;
+        throw new Error("Não foi possível ler o conteúdo do CV.");
+      }
+    })();
+    return parsedSchema.parse(raw);
   });
 
 export const writeSummary = createServerFn({ method: "POST" })
