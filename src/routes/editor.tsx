@@ -9,7 +9,7 @@ import { useCVState, defaultTheme } from "@/lib/cv/store";
 import { exportDOCX, exportPDF } from "@/lib/cv/export";
 import { sampleCV } from "@/lib/cv/sample";
 
-type EditorSearch = { modelo?: string; embed?: boolean };
+type EditorSearch = { modelo?: string | undefined; embed?: boolean | undefined };
 
 export const Route = createFileRoute("/editor")({
   validateSearch: (search: Record<string, unknown>): EditorSearch => ({
