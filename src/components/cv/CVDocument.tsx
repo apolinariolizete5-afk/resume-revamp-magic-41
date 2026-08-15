@@ -1205,7 +1205,7 @@ function Extras({ ctx, inset = true }: { ctx: Ctx; inset?: boolean }) {
 
 /* ---------------- novos layouts premium ---------------- */
 
-function SideStack({ ctx, onDark }: { ctx: Ctx; onDark?: boolean }) {
+function SideStack({ ctx, onDark = false }: { ctx: Ctx; onDark?: boolean }) {
   return (
     <>
       {ctx.show("skills") && ctx.d.skills.length > 0 && (
