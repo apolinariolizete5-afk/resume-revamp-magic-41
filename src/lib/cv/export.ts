@@ -207,6 +207,66 @@ export async function exportDOCX(data: CVData) {
     );
   }
 
+  if (data.courses.length) {
+    body.push(heading("Cursos e formações"));
+    data.courses.forEach((c) =>
+      body.push(
+        new Paragraph({
+          numbering: { reference: "cv-bullets", level: 0 },
+          children: [
+            new TextRun({ text: c.name, bold: true, size: 21 }),
+            new TextRun({
+              text: [c.provider, c.year].filter(Boolean).length
+                ? ` — ${[c.provider, c.year].filter(Boolean).join(", ")}`
+                : "",
+              size: 20,
+              color: "666666",
+            }),
+          ],
+        }),
+      ),
+    );
+  }
+
+  data.customSections
+    .filter((c) => c.title.trim() || c.content.trim())
+    .forEach((c) => {
+      body.push(heading(c.title || "Secção"));
+      c.content
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .forEach((l) =>
+          body.push(
+            new Paragraph({
+              numbering: { reference: "cv-bullets", level: 0 },
+              children: [new TextRun({ text: l, size: 21 })],
+            }),
+          ),
+        );
+    });
+
+  if (data.references.length) {
+    body.push(heading("Referências"));
+    data.references.forEach((r) =>
+      body.push(
+        new Paragraph({
+          spacing: { before: 100 },
+          children: [
+            new TextRun({ text: r.name, bold: true, size: 21 }),
+            new TextRun({
+              text: [r.role, r.contact].filter(Boolean).length
+                ? ` — ${[r.role, r.contact].filter(Boolean).join(" | ")}`
+                : "",
+              size: 20,
+              color: "555555",
+            }),
+          ],
+        }),
+      ),
+    );
+  }
+
   if (data.interests.length) {
     body.push(heading("Interesses"));
     body.push(

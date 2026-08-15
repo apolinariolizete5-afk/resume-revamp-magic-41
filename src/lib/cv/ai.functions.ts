@@ -30,7 +30,7 @@ async function chat(system: string, user: string, json: boolean) {
 }
 
 const PARSE_SYSTEM = `És um extractor de dados de currículos. Recebes o texto bruto de um CV e devolves APENAS JSON válido com esta forma exacta:
-{"name":"","job":"","email":"","phone":"","location":"","link":"","summary":"","experiences":[{"role":"","company":"","period":"","description":""}],"education":[{"course":"","school":"","period":"","description":""}],"skills":[""],"languages":[{"name":"","level":""}],"certificates":[{"name":"","issuer":"","year":""}],"interests":[""]}
+{"name":"","job":"","email":"","phone":"","location":"","link":"","summary":"","experiences":[{"role":"","company":"","period":"","description":""}],"education":[{"course":"","school":"","period":"","description":""}],"skills":[""],"languages":[{"name":"","level":""}],"certificates":[{"name":"","issuer":"","year":""}],"courses":[{"name":"","provider":"","year":""}],"references":[{"name":"","role":"","contact":""}],"interests":[""]}
 Regras: escreve em português de Moçambique; não inventes dados que não existam (usa string vazia ou lista vazia); em "description" usa uma frase por linha separada por \\n; mantém as datas tal como aparecem.`;
 
 const parsedSchema = z.object({
@@ -71,6 +71,24 @@ const parsedSchema = z.object({
         name: z.string().default(""),
         issuer: z.string().default(""),
         year: z.string().default(""),
+      }),
+    )
+    .default([]),
+  courses: z
+    .array(
+      z.object({
+        name: z.string().default(""),
+        provider: z.string().default(""),
+        year: z.string().default(""),
+      }),
+    )
+    .default([]),
+  references: z
+    .array(
+      z.object({
+        name: z.string().default(""),
+        role: z.string().default(""),
+        contact: z.string().default(""),
       }),
     )
     .default([]),
