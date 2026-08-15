@@ -27,6 +27,26 @@ export type Certificate = {
   year: string;
 };
 
+export type Course = {
+  id: string;
+  name: string;
+  provider: string;
+  year: string;
+};
+
+export type Reference = {
+  id: string;
+  name: string;
+  role: string;
+  contact: string;
+};
+
+export type CustomSection = {
+  id: string;
+  title: string;
+  content: string;
+};
+
 export type CVSectionKey =
   | "summary"
   | "experience"
@@ -34,6 +54,9 @@ export type CVSectionKey =
   | "skills"
   | "languages"
   | "certificates"
+  | "courses"
+  | "references"
+  | "custom"
   | "interests";
 
 export type CVData = {
@@ -50,6 +73,9 @@ export type CVData = {
   skills: string[];
   languages: Language[];
   certificates: Certificate[];
+  courses: Course[];
+  references: Reference[];
+  customSections: CustomSection[];
   interests: string[];
 };
 
@@ -82,6 +108,9 @@ export const emptyCV = (): CVData => ({
   skills: [],
   languages: [],
   certificates: [],
+  courses: [],
+  references: [],
+  customSections: [],
   interests: [],
 });
 
@@ -92,6 +121,9 @@ export const SECTION_LABELS: Record<CVSectionKey, string> = {
   skills: "Competências",
   languages: "Idiomas",
   certificates: "Certificados",
+  courses: "Cursos",
+  references: "Referências",
+  custom: "Secções personalizadas",
   interests: "Interesses",
 };
 
