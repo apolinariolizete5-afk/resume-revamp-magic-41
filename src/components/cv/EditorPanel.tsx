@@ -86,6 +86,12 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
   const [letter, setLetter] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [interestInput, setInterestInput] = useState("");
+  const [cvTitle, setCvTitle] = useState("");
+  const [library, setLibrary] = useState<SavedCV[]>([]);
+
+  useEffect(() => {
+    setLibrary(listSavedCVs());
+  }, []);
 
   const parse = useServerFn(parseCVText);
   const summarize = useServerFn(writeSummary);
