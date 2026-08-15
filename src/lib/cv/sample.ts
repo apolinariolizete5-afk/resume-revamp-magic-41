@@ -72,6 +72,21 @@ export const sampleCV: CVData = {
     { id: "c1", name: "Google Ads Search Certification", issuer: "Google", year: "2024" },
     { id: "c2", name: "Gestão de Projectos", issuer: "PMI Moçambique", year: "2023" },
   ],
+  courses: [
+    { id: "cu1", name: "Analítica de Dados para Marketing", provider: "Coursera", year: "2023" },
+    { id: "cu2", name: "Liderança de Equipas", provider: "IPEME", year: "2022" },
+  ],
+  references: [
+    { id: "r1", name: "Dr. Salomão Bila", role: "Director Comercial, Rede Moçambique", contact: "+258 84 000 1122" },
+    { id: "r2", name: "Eng.ª Tânia Mucavele", role: "CEO, Grupo Zambeze", contact: "tania@zambeze.co.mz" },
+  ],
+  customSections: [
+    {
+      id: "cs1",
+      title: "Projectos de destaque",
+      content: "Campanha \"Mais Perto de Si\" — 2,1 milhões de alcance em 3 meses.\nLançamento da loja online do Grupo Zambeze.",
+    },
+  ],
   interests: ["Fotografia", "Mentoria de jovens", "Corrida", "Literatura moçambicana"],
 };
 

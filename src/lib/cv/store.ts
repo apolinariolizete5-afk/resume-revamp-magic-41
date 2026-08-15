@@ -67,6 +67,60 @@ export function useCVState() {
   return { state, setState, setData, setTheme, hydrated };
 }
 
+/* ---------------- biblioteca de CVs guardados ---------------- */
+
+const LIB_KEY = "moza-cv-library-v1";
+
+export type SavedCV = {
+  id: string;
+  title: string;
+  updatedAt: number;
+  state: CVState;
+};
+
+export function listSavedCVs(): SavedCV[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(LIB_KEY);
+    const list = raw ? (JSON.parse(raw) as SavedCV[]) : [];
+    return Array.isArray(list) ? list.sort((a, b) => b.updatedAt - a.updatedAt) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLibrary(list: SavedCV[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LIB_KEY, JSON.stringify(list));
+  } catch {
+    throw new Error("Sem espaço para guardar. Elimine um CV guardado e tente novamente.");
+  }
+}
+
+export function saveCV(state: CVState, title?: string, id?: string): SavedCV[] {
+  const list = listSavedCVs();
+  const name =
+    title?.trim() ||
+    `${state.data.name || "CV sem nome"}${state.data.job ? ` — ${state.data.job}` : ""}`;
+  const existingIndex = id ? list.findIndex((c) => c.id === id) : -1;
+  const entry: SavedCV = {
+    id: id ?? Math.random().toString(36).slice(2, 10),
+    title: name,
+    updatedAt: Date.now(),
+    state,
+  };
+  if (existingIndex >= 0) list[existingIndex] = entry;
+  else list.unshift(entry);
+  writeLibrary(list.slice(0, 30));
+  return listSavedCVs();
+}
+
+export function deleteCV(id: string): SavedCV[] {
+  writeLibrary(listSavedCVs().filter((c) => c.id !== id));
+  return listSavedCVs();
+}
+
 export function scoreCV(data: CVData) {
   const tips: string[] = [];
   let score = 0;

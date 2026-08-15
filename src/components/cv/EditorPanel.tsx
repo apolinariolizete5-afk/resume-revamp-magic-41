@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -11,6 +11,8 @@ import {
   Trash2,
   Upload,
   User,
+  Save,
+  FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +38,14 @@ import {
   type CVState,
   type CVTheme,
 } from "@/lib/cv/types";
-import { scoreCV, defaultTheme } from "@/lib/cv/store";
+import {
+  scoreCV,
+  defaultTheme,
+  listSavedCVs,
+  saveCV,
+  deleteCV,
+  type SavedCV,
+} from "@/lib/cv/store";
 import { compressImage, extractTextFromFile, readImageAsDataURL } from "@/lib/cv/import";
 import {
   improveExperience,
@@ -77,6 +86,12 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
   const [letter, setLetter] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [interestInput, setInterestInput] = useState("");
+  const [cvTitle, setCvTitle] = useState("");
+  const [library, setLibrary] = useState<SavedCV[]>([]);
+
+  useEffect(() => {
+    setLibrary(listSavedCVs());
+  }, []);
 
   const parse = useServerFn(parseCVText);
   const summarize = useServerFn(writeSummary);
@@ -117,6 +132,12 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
         certificates: parsed.certificates.length
           ? parsed.certificates.map((c) => ({ id: uid(), ...c }))
           : d.certificates,
+        courses: parsed.courses?.length
+          ? parsed.courses.map((c) => ({ id: uid(), ...c }))
+          : d.courses,
+        references: parsed.references?.length
+          ? parsed.references.map((r) => ({ id: uid(), ...r }))
+          : d.references,
         interests: parsed.interests.length ? parsed.interests : d.interests,
       }));
       setProgress(100);
@@ -816,6 +837,289 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
                 ))}
               </div>
             </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="extra" className="mt-3 rounded-xl border border-border bg-card px-4">
+          <AccordionTrigger className="text-sm font-bold">
+            Cursos, referências e secções personalizadas
+          </AccordionTrigger>
+          <AccordionContent className="space-y-5 pb-4">
+            <div>
+              <Label className="text-xs">Cursos e formações complementares</Label>
+              <div className="mt-2 space-y-3">
+                {data.courses.map((c, i) => (
+                  <div key={c.id} className="grid grid-cols-[1fr_auto] gap-2 rounded-lg border border-border p-3">
+                    <div className="grid gap-2">
+                      <Input
+                        value={c.name}
+                        placeholder="Nome do curso"
+                        onChange={(e) =>
+                          setData((d) => ({
+                            ...d,
+                            courses: d.courses.map((x, y) =>
+                              y === i ? { ...x, name: e.target.value } : x,
+                            ),
+                          }))
+                        }
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={c.provider}
+                          placeholder="Instituição"
+                          onChange={(e) =>
+                            setData((d) => ({
+                              ...d,
+                              courses: d.courses.map((x, y) =>
+                                y === i ? { ...x, provider: e.target.value } : x,
+                              ),
+                            }))
+                          }
+                        />
+                        <Input
+                          value={c.year}
+                          placeholder="Ano"
+                          onChange={(e) =>
+                            setData((d) => ({
+                              ...d,
+                              courses: d.courses.map((x, y) =>
+                                y === i ? { ...x, year: e.target.value } : x,
+                              ),
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remover curso"
+                      onClick={() =>
+                        setData((d) => ({ ...d, courses: d.courses.filter((_, y) => y !== i) }))
+                      }
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setData((d) => ({
+                      ...d,
+                      courses: [...d.courses, { id: uid(), name: "", provider: "", year: "" }],
+                    }))
+                  }
+                >
+                  <Plus className="size-4" /> Adicionar curso
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs">Referências</Label>
+              <div className="mt-2 space-y-3">
+                {data.references.map((r, i) => (
+                  <div key={r.id} className="grid grid-cols-[1fr_auto] gap-2 rounded-lg border border-border p-3">
+                    <div className="grid gap-2">
+                      <Input
+                        value={r.name}
+                        placeholder="Nome"
+                        onChange={(e) =>
+                          setData((d) => ({
+                            ...d,
+                            references: d.references.map((x, y) =>
+                              y === i ? { ...x, name: e.target.value } : x,
+                            ),
+                          }))
+                        }
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={r.role}
+                          placeholder="Cargo / empresa"
+                          onChange={(e) =>
+                            setData((d) => ({
+                              ...d,
+                              references: d.references.map((x, y) =>
+                                y === i ? { ...x, role: e.target.value } : x,
+                              ),
+                            }))
+                          }
+                        />
+                        <Input
+                          value={r.contact}
+                          placeholder="Contacto"
+                          onChange={(e) =>
+                            setData((d) => ({
+                              ...d,
+                              references: d.references.map((x, y) =>
+                                y === i ? { ...x, contact: e.target.value } : x,
+                              ),
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remover referência"
+                      onClick={() =>
+                        setData((d) => ({
+                          ...d,
+                          references: d.references.filter((_, y) => y !== i),
+                        }))
+                      }
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setData((d) => ({
+                      ...d,
+                      references: [...d.references, { id: uid(), name: "", role: "", contact: "" }],
+                    }))
+                  }
+                >
+                  <Plus className="size-4" /> Adicionar referência
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs">Secções personalizadas</Label>
+              <div className="mt-2 space-y-3">
+                {data.customSections.map((c, i) => (
+                  <div key={c.id} className="grid grid-cols-[1fr_auto] gap-2 rounded-lg border border-border p-3">
+                    <div className="grid gap-2">
+                      <Input
+                        value={c.title}
+                        placeholder="Título (ex.: Projectos de destaque)"
+                        onChange={(e) =>
+                          setData((d) => ({
+                            ...d,
+                            customSections: d.customSections.map((x, y) =>
+                              y === i ? { ...x, title: e.target.value } : x,
+                            ),
+                          }))
+                        }
+                      />
+                      <Textarea
+                        rows={4}
+                        value={c.content}
+                        placeholder="Uma linha por item"
+                        onChange={(e) =>
+                          setData((d) => ({
+                            ...d,
+                            customSections: d.customSections.map((x, y) =>
+                              y === i ? { ...x, content: e.target.value } : x,
+                            ),
+                          }))
+                        }
+                      />
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remover secção"
+                      onClick={() =>
+                        setData((d) => ({
+                          ...d,
+                          customSections: d.customSections.filter((_, y) => y !== i),
+                        }))
+                      }
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setData((d) => ({
+                      ...d,
+                      customSections: [...d.customSections, { id: uid(), title: "", content: "" }],
+                    }))
+                  }
+                >
+                  <Plus className="size-4" /> Adicionar secção
+                </Button>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="biblioteca" className="mt-3 rounded-xl border border-border bg-card px-4">
+          <AccordionTrigger className="text-sm font-bold">Guardar e abrir CVs</AccordionTrigger>
+          <AccordionContent className="space-y-3 pb-4">
+            <div className="flex gap-2">
+              <Input
+                value={cvTitle}
+                placeholder="Nome deste CV"
+                onChange={(e) => setCvTitle(e.target.value)}
+              />
+              <Button
+                size="sm"
+                onClick={() => {
+                  try {
+                    setLibrary(saveCV(state, cvTitle));
+                    setCvTitle("");
+                    toast.success("CV guardado neste dispositivo.");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Não foi possível guardar.");
+                  }
+                }}
+              >
+                <Save className="size-4" /> Guardar
+              </Button>
+            </div>
+            {library.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Ainda não guardou nenhum CV.</p>
+            ) : (
+              <ul className="space-y-2">
+                {library.map((cv) => (
+                  <li
+                    key={cv.id}
+                    className="flex items-center gap-2 rounded-lg border border-border px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold">{cv.title}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {new Date(cv.updatedAt).toLocaleString("pt-PT")}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setState(() => cv.state);
+                        toast.success("CV aberto.");
+                      }}
+                    >
+                      <FolderOpen className="size-4" /> Abrir
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Eliminar CV guardado"
+                      onClick={() => {
+                        setLibrary(deleteCV(cv.id));
+                        toast.success("CV eliminado.");
+                      }}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </AccordionContent>
         </AccordionItem>
 
