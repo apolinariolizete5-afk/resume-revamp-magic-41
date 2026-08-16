@@ -244,11 +244,14 @@ export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }:
           </ul>
         )}
       </section>
+      )}
 
       {/* Design */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {showDesign && (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
         <h2 className="text-sm font-bold">Modelo e estilo</h2>
-        <div className="mt-3 grid grid-cols-5 gap-2">
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+
           {TEMPLATES.map((t) => (
             <button
               key={t.id}
