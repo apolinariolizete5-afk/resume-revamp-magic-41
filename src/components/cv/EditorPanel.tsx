@@ -178,10 +178,15 @@ export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }:
       hidden: visible ? theme.hidden.filter((h) => h !== k) : [...new Set([...theme.hidden, k])],
     });
 
+  const showContent = tab !== "design";
+  const showDesign = tab !== "conteudo";
+
   return (
-    <div className="space-y-4 pb-16">
+    <div className="space-y-4 pb-4">
       {/* Import */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {showContent && (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Upload className="size-4 text-primary" /> Importar CV antigo
         </h2>
