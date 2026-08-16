@@ -248,14 +248,10 @@ function Gallery() {
           <DialogTitle className="px-1">{preview?.tpl.name}</DialogTitle>
           {preview && (
             <>
-              <div className="mx-auto w-fit overflow-hidden rounded-md border border-border paper-shadow">
-                <CVThumb
-                  data={sampleFor(preview.index)}
-                  theme={defaultTheme(preview.tpl.id)}
-                  width={620}
-                />
+              <div className="mx-auto w-full max-w-[620px] overflow-hidden rounded-md border border-border paper-shadow">
+                <ResponsiveThumb data={sampleFor(preview.index)} theme={defaultTheme(preview.tpl.id)} />
               </div>
-              <Button className="mt-3 w-full" onClick={() => choose(preview.tpl)}>
+              <Button className="mt-3 h-12 w-full" onClick={() => choose(preview.tpl)}>
                 Usar este modelo
               </Button>
             </>
