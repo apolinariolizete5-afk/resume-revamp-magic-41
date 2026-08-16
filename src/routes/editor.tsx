@@ -146,6 +146,7 @@ function EditorPage() {
               variant="outline"
               size="sm"
               className="h-10"
+              aria-label="Descarregar Word"
               onClick={() => void handleExport("docx")}
               disabled={exporting !== null}
             >
@@ -159,6 +160,7 @@ function EditorPage() {
             <Button
               size="sm"
               className="h-10"
+              aria-label="Descarregar PDF"
               onClick={() => void handleExport("pdf")}
               disabled={exporting !== null}
             >
