@@ -116,12 +116,13 @@ function EditorPage() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1600px] gap-6 px-4 py-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-        <div className="lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-2">
+      <main className="mx-auto grid max-w-[1600px] gap-6 overflow-x-hidden px-3 py-6 sm:px-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+        <div className="min-w-0 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-2">
           <EditorPanel state={state} setState={setState} setData={setData} setTheme={setTheme} />
+
         </div>
 
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="mb-3 flex items-center justify-end gap-2">
             <Button
               size="icon"
@@ -143,13 +144,16 @@ function EditorPage() {
               <Plus className="size-4" />
             </Button>
           </div>
-          <div className="overflow-auto rounded-xl bg-muted/60 p-4">
+          <div className="overflow-hidden rounded-xl bg-muted/60 p-2 sm:p-4">
             <div
               style={{
                 width: A4_W * zoom,
+                maxWidth: "100%",
                 margin: "0 auto",
+                overflow: "hidden",
               }}
             >
+
               <div
                 style={{
                   transform: `scale(${zoom})`,

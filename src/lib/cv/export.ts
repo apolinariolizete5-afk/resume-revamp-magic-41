@@ -5,18 +5,19 @@ const fileName = (data: CVData, ext: string) =>
 
 export async function exportPDF(node: HTMLElement, data: CVData) {
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-    import("html2canvas"),
+    import("html2canvas-pro"),
     import("jspdf"),
   ]);
 
   const canvas = await html2canvas(node, {
-    scale: 2.5,
+    scale: Math.min(2.5, Math.max(1.5, 2200 / Math.max(1, node.scrollWidth))),
     backgroundColor: "#ffffff",
     useCORS: true,
     logging: false,
     windowWidth: node.scrollWidth,
     windowHeight: node.scrollHeight,
   });
+
 
   const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
   const pageW = pdf.internal.pageSize.getWidth();
