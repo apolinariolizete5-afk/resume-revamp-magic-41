@@ -251,6 +251,7 @@ function EditorPage() {
             <div
               style={{
                 width: A4_W * zoom,
+                height: paperH ? paperH * zoom : undefined,
                 margin: "0 auto",
               }}
             >
