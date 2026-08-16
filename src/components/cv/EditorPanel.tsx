@@ -76,7 +76,7 @@ const contextFromCV = (d: CVData) =>
     `Idiomas: ${d.languages.map((l) => `${l.name} (${l.level})`).join(", ")}`,
   ].join("\n");
 
-export function EditorPanel({ state, setState, setData, setTheme }: Props) {
+export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }: Props) {
   const { data, theme } = state;
   const cvFileRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
