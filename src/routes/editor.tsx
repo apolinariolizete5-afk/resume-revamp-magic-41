@@ -63,6 +63,7 @@ function EditorPage() {
   const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const [paperH, setPaperH] = useState(0);
   const applied = useRef(false);
 
   useEffect(() => {
