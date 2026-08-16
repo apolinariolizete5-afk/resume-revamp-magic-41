@@ -1216,7 +1216,9 @@ export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }:
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      )}
     </div>
+
   );
 }
 
