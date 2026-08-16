@@ -4,8 +4,34 @@ import { z } from "zod";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash";
 
+async function chatGemini(key: string, system: string, user: string, json: boolean) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: "user", parts: [{ text: user }] }],
+        generationConfig: json ? { responseMimeType: "application/json" } : {},
+      }),
+    },
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    if (res.status === 429) throw new Error("Muitos pedidos de IA. Tente novamente daqui a pouco.");
+    throw new Error(`Falha na IA: ${text.slice(0, 200)}`);
+  }
+  const data = (await res.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  return data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+}
+
 async function chat(system: string, user: string, json: boolean) {
   const key = process.env["LOVABLE_API_KEY"];
+  const geminiKey = process.env["GEMINI_API_KEY"];
+  if (!key && geminiKey) return chatGemini(geminiKey, system, user, json);
   if (!key) throw new Error("Serviço de IA indisponível.");
   const res = await fetch(GATEWAY, {
     method: "POST",
@@ -21,6 +47,7 @@ async function chat(system: string, user: string, json: boolean) {
   });
   if (!res.ok) {
     const text = await res.text();
+    if (geminiKey) return chatGemini(geminiKey, system, user, json);
     if (res.status === 429) throw new Error("Muitos pedidos de IA. Tente novamente daqui a pouco.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
     throw new Error(`Falha na IA: ${text.slice(0, 200)}`);
@@ -28,6 +55,7 @@ async function chat(system: string, user: string, json: boolean) {
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
   return data.choices?.[0]?.message?.content ?? "";
 }
+
 
 const PARSE_SYSTEM = `És um extractor de dados de currículos. Recebes o texto bruto de um CV e devolves APENAS JSON válido com esta forma exacta:
 {"name":"","job":"","email":"","phone":"","location":"","link":"","summary":"","experiences":[{"role":"","company":"","period":"","description":""}],"education":[{"course":"","school":"","period":"","description":""}],"skills":[""],"languages":[{"name":"","level":""}],"certificates":[{"name":"","issuer":"","year":""}],"courses":[{"name":"","provider":"","year":""}],"references":[{"name":"","role":"","contact":""}],"interests":[""]}
