@@ -144,13 +144,16 @@ function EditorPage() {
               <Plus className="size-4" />
             </Button>
           </div>
-          <div className="overflow-auto rounded-xl bg-muted/60 p-4">
+          <div className="overflow-hidden rounded-xl bg-muted/60 p-2 sm:p-4">
             <div
               style={{
                 width: A4_W * zoom,
+                maxWidth: "100%",
                 margin: "0 auto",
+                overflow: "hidden",
               }}
             >
+
               <div
                 style={{
                   transform: `scale(${zoom})`,
