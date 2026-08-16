@@ -331,8 +331,11 @@ export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }:
           ))}
         </div>
       </section>
+      )}
 
+      {showContent && (
       <Accordion type="multiple" defaultValue={["pessoais", "resumo", "experiencia"]}>
+
         <AccordionItem value="pessoais" className="rounded-xl border border-border bg-card px-4">
           <AccordionTrigger className="text-sm font-bold">
             <span className="flex items-center gap-2">
