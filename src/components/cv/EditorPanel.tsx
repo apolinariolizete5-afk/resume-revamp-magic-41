@@ -62,6 +62,7 @@ type Props = {
   setState: (updater: (s: CVState) => CVState) => void;
   setData: (patch: Partial<CVData> | ((d: CVData) => CVData)) => void;
   setTheme: (patch: Partial<CVTheme>) => void;
+  tab?: "all" | "conteudo" | "design";
 };
 
 const contextFromCV = (d: CVData) =>
@@ -75,7 +76,7 @@ const contextFromCV = (d: CVData) =>
     `Idiomas: ${d.languages.map((l) => `${l.name} (${l.level})`).join(", ")}`,
   ].join("\n");
 
-export function EditorPanel({ state, setState, setData, setTheme }: Props) {
+export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }: Props) {
   const { data, theme } = state;
   const cvFileRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -177,10 +178,15 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
       hidden: visible ? theme.hidden.filter((h) => h !== k) : [...new Set([...theme.hidden, k])],
     });
 
+  const showContent = tab !== "design";
+  const showDesign = tab !== "conteudo";
+
   return (
-    <div className="space-y-4 pb-16">
+    <div className="space-y-4 pb-4">
       {/* Import */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {showContent && (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Upload className="size-4 text-primary" /> Importar CV antigo
         </h2>
@@ -219,9 +225,12 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
         </div>
         {progress > 0 && <Progress value={progress} className="mt-3 h-1.5" />}
       </section>
+      )}
 
       {/* Quality */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {showContent && (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold">Qualidade do CV</h2>
           <span className="text-lg font-bold text-primary">{quality.score}/100</span>
@@ -235,11 +244,14 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
           </ul>
         )}
       </section>
+      )}
 
       {/* Design */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {showDesign && (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
         <h2 className="text-sm font-bold">Modelo e estilo</h2>
-        <div className="mt-3 grid grid-cols-5 gap-2">
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+
           {TEMPLATES.map((t) => (
             <button
               key={t.id}
@@ -319,8 +331,11 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
           ))}
         </div>
       </section>
+      )}
 
+      {showContent && (
       <Accordion type="multiple" defaultValue={["pessoais", "resumo", "experiencia"]}>
+
         <AccordionItem value="pessoais" className="rounded-xl border border-border bg-card px-4">
           <AccordionTrigger className="text-sm font-bold">
             <span className="flex items-center gap-2">
@@ -1201,7 +1216,9 @@ export function EditorPanel({ state, setState, setData, setTheme }: Props) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      )}
     </div>
+
   );
 }
 

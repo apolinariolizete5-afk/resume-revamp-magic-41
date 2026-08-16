@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Eye, FileText, Sparkles, Upload, Wand2 } from "lucide-react";
 import { CVThumb, TEMPLATES, type TemplateMeta } from "@/components/cv/CVDocument";
 import { sampleCV, sampleVariants } from "@/lib/cv/sample";
+import type { CVData, CVTheme } from "@/lib/cv/types";
 import { defaultTheme, loadState, saveState } from "@/lib/cv/store";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -15,13 +16,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Crie um currículo profissional em minutos: 10 modelos premium, importação automática do seu CV antigo, edição em tempo real e download em PDF ou Word.",
+          "Crie um currículo profissional em minutos: 20 modelos premium, importação automática do seu CV antigo, edição em tempo real e download em PDF ou Word.",
       },
       { property: "og:title", content: "Criador de CV Premium | Moza Empregos" },
       {
         property: "og:description",
         content:
-          "10 modelos premium, preenchimento automático a partir do seu CV antigo e download em PDF ou Word.",
+          "20 modelos premium, preenchimento automático a partir do seu CV antigo e download em PDF ou Word.",
       },
     ],
   }),
@@ -33,6 +34,24 @@ const CATEGORIES = ["Todos", "Moderno", "Clássico", "Criativo", "Executivo"] as
 function sampleFor(index: number) {
   const variant = index % 3 === 1 ? sampleVariants["b"] : index % 3 === 2 ? sampleVariants["c"] : {};
   return { ...sampleCV, ...variant };
+}
+
+function ResponsiveThumb({ data, theme }: { data: CVData; theme: CVTheme }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(320);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setW(el.clientWidth || 320));
+    ro.observe(el);
+    setW(el.clientWidth || 320);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className="w-full">
+      <CVThumb data={data} theme={theme} width={w} />
+    </div>
+  );
 }
 
 function Gallery() {
@@ -55,7 +74,7 @@ function Gallery() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4">
           <div className="flex items-center gap-3">
             <span className="grid size-9 place-items-center rounded-lg bg-ink text-ink-foreground">
               <FileText className="size-4" />
@@ -80,7 +99,7 @@ function Gallery() {
       </header>
 
       <section className="border-b border-border/60 bg-surface">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-5 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent-foreground">
               <Sparkles className="size-3.5" /> Preenchimento automático com IA
@@ -90,15 +109,21 @@ function Gallery() {
             </h1>
             <p className="mt-5 max-w-xl text-base text-muted-foreground">
               Carregue o CV que já tem em PDF ou Word, anexe a sua foto e o sistema preenche tudo
-              automaticamente. Escolha um dos 10 modelos premium, edite em tempo real e descarregue
+              automaticamente. Escolha um dos 20 modelos premium, edite em tempo real e descarregue
               em PDF ou Word.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => choose(TEMPLATES[0]!)}>
+            <div className="mt-7 flex flex-wrap gap-3 [&>button]:h-12">
+              <Button size="lg" className="h-12 flex-1 sm:flex-none" onClick={() => choose(TEMPLATES[0]!)}>
                 Começar agora <ArrowRight className="size-4" />
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="#modelos">Ver os 10 modelos</a>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() =>
+                  document.getElementById("modelos")?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                Ver os 20 modelos
               </Button>
             </div>
             <ul className="mt-8 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
@@ -125,7 +150,7 @@ function Gallery() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-14" id="modelos">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-14" id="modelos">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-display text-3xl font-semibold">Escolha o seu modelo</h2>
@@ -151,15 +176,15 @@ function Gallery() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-7 lg:grid-cols-3 xl:grid-cols-4">
           {list.map((tpl, i) => (
             <article key={tpl.id} className="group">
               <div className="overflow-hidden rounded-lg border border-border bg-card paper-shadow transition-transform group-hover:-translate-y-1">
                 <div className="pointer-events-none">
-                  <CVThumb data={sampleFor(i)} theme={defaultTheme(tpl.id)} width={320} />
+                  <ResponsiveThumb data={sampleFor(i)} theme={defaultTheme(tpl.id)} />
                 </div>
               </div>
-              <div className="mt-3 flex items-center justify-between gap-2">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-semibold">{tpl.name}</p>
                   <p className="text-xs text-muted-foreground">{tpl.category}</p>
@@ -219,18 +244,14 @@ function Gallery() {
       </footer>
 
       <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
-        <DialogContent className="max-h-[92vh] max-w-[860px] overflow-auto p-4">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-2rem)] max-w-[860px] overflow-auto p-3 sm:p-4">
           <DialogTitle className="px-1">{preview?.tpl.name}</DialogTitle>
           {preview && (
             <>
-              <div className="mx-auto w-fit overflow-hidden rounded-md border border-border paper-shadow">
-                <CVThumb
-                  data={sampleFor(preview.index)}
-                  theme={defaultTheme(preview.tpl.id)}
-                  width={640}
-                />
+              <div className="mx-auto w-full max-w-[620px] overflow-hidden rounded-md border border-border paper-shadow">
+                <ResponsiveThumb data={sampleFor(preview.index)} theme={defaultTheme(preview.tpl.id)} />
               </div>
-              <Button className="mt-3 w-full" onClick={() => choose(preview.tpl)}>
+              <Button className="mt-3 h-12 w-full" onClick={() => choose(preview.tpl)}>
                 Usar este modelo
               </Button>
             </>
