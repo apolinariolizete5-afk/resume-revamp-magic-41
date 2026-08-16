@@ -62,6 +62,7 @@ type Props = {
   setState: (updater: (s: CVState) => CVState) => void;
   setData: (patch: Partial<CVData> | ((d: CVData) => CVData)) => void;
   setTheme: (patch: Partial<CVTheme>) => void;
+  tab?: "all" | "conteudo" | "design";
 };
 
 const contextFromCV = (d: CVData) =>
