@@ -225,9 +225,12 @@ export function EditorPanel({ state, setState, setData, setTheme, tab = "all" }:
         </div>
         {progress > 0 && <Progress value={progress} className="mt-3 h-1.5" />}
       </section>
+      )}
 
       {/* Quality */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {showContent && (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold">Qualidade do CV</h2>
           <span className="text-lg font-bold text-primary">{quality.score}/100</span>
