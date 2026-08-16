@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Eye, FileText, Sparkles, Upload, Wand2 } from "lucide-react";
 import { CVThumb, TEMPLATES, type TemplateMeta } from "@/components/cv/CVDocument";
 import { sampleCV, sampleVariants } from "@/lib/cv/sample";
+import type { CVData, CVTheme } from "@/lib/cv/types";
 import { defaultTheme, loadState, saveState } from "@/lib/cv/store";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -33,6 +34,24 @@ const CATEGORIES = ["Todos", "Moderno", "Clássico", "Criativo", "Executivo"] as
 function sampleFor(index: number) {
   const variant = index % 3 === 1 ? sampleVariants["b"] : index % 3 === 2 ? sampleVariants["c"] : {};
   return { ...sampleCV, ...variant };
+}
+
+function ResponsiveThumb({ data, theme }: { data: CVData; theme: CVTheme }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(320);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setW(el.clientWidth || 320));
+    ro.observe(el);
+    setW(el.clientWidth || 320);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className="w-full">
+      <CVThumb data={data} theme={theme} width={w} />
+    </div>
+  );
 }
 
 function Gallery() {
@@ -162,7 +181,7 @@ function Gallery() {
             <article key={tpl.id} className="group">
               <div className="overflow-hidden rounded-lg border border-border bg-card paper-shadow transition-transform group-hover:-translate-y-1">
                 <div className="pointer-events-none">
-                  <CVThumb data={sampleFor(i)} theme={defaultTheme(tpl.id)} width={320} />
+                  <ResponsiveThumb data={sampleFor(i)} theme={defaultTheme(tpl.id)} />
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -233,7 +252,7 @@ function Gallery() {
                 <CVThumb
                   data={sampleFor(preview.index)}
                   theme={defaultTheme(preview.tpl.id)}
-                  width={640}
+                  width={620}
                 />
               </div>
               <Button className="mt-3 w-full" onClick={() => choose(preview.tpl)}>
