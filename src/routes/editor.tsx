@@ -122,7 +122,7 @@ function EditorPage() {
 
         </div>
 
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="mb-3 flex items-center justify-end gap-2">
             <Button
               size="icon"
