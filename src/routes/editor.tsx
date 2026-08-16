@@ -79,7 +79,7 @@ function EditorPage() {
   useLayoutEffect(() => {
     if (!autoFit) return;
     const fit = () => {
-      const w = stageRef.current?.clientWidth ?? window.innerWidth;
+      const w = (stageRef.current?.clientWidth ?? window.innerWidth) - 24;
       const next = Math.min(0.95, Math.max(0.25, +(w / A4_W).toFixed(3)));
       setZoom(next);
     };
@@ -87,6 +87,16 @@ function EditorPage() {
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
   }, [autoFit, tab]);
+
+  // Keep the scaled stage exactly as tall as the rendered document (multi-page safe).
+  useEffect(() => {
+    const el = paperRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setPaperH(el.scrollHeight));
+    ro.observe(el);
+    setPaperH(el.scrollHeight);
+    return () => ro.disconnect();
+  }, [tab, state.theme.templateId]);
 
   async function handleExport(kind: "pdf" | "docx") {
     setExporting(kind);
