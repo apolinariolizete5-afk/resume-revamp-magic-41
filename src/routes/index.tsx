@@ -114,9 +114,10 @@ function Gallery() {
               em PDF ou Word.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 [&>button]:h-12">
-              <Button size="lg" className="h-12 flex-1 sm:flex-none" onClick={() => choose(TEMPLATES[0]!)}>
+              <Button size="lg" className="h-12 flex-1 bg-gold text-ink hover:bg-gold/90 sm:flex-none" onClick={() => choose(TEMPLATES[0]!)}>
                 Começar agora <ArrowRight className="size-4" />
               </Button>
+
               <Button
                 size="lg"
                 variant="outline"
