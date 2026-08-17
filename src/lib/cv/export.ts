@@ -9,14 +9,32 @@ export async function exportPDF(node: HTMLElement, data: CVData) {
     import("jspdf"),
   ]);
 
-  const canvas = await html2canvas(node, {
-    scale: Math.min(2.5, Math.max(1.5, 2200 / Math.max(1, node.scrollWidth))),
-    backgroundColor: "#ffffff",
-    useCORS: true,
-    logging: false,
-    windowWidth: node.scrollWidth,
-    windowHeight: node.scrollHeight,
-  });
+  // Render an unscaled, full-width copy off-screen so the capture is identical
+  // on mobile and desktop (no ancestor transform / width constraints).
+  const holder = document.createElement("div");
+  holder.style.cssText =
+    "position:fixed;top:0;left:0;width:794px;background:#ffffff;z-index:-1;opacity:1;pointer-events:none;";
+  const clone = node.cloneNode(true) as HTMLElement;
+  clone.style.transform = "none";
+  clone.style.width = "794px";
+  holder.appendChild(clone);
+  document.body.appendChild(holder);
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(clone, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false,
+      windowWidth: 794,
+      windowHeight: clone.scrollHeight,
+    });
+  } finally {
+    holder.remove();
+  }
+
 
 
   const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
