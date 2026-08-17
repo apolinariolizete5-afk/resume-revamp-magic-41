@@ -41,7 +41,7 @@ export async function exportPDF(node: HTMLElement, data: CVData) {
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
   const imgH = (canvas.height * pageW) / canvas.width;
-  const pages = Math.max(1, Math.ceil(imgH / pageH - 0.02));
+  const pages = Math.max(1, Math.ceil(imgH / pageH - 0.06));
 
   for (let i = 0; i < pages; i++) {
     if (i > 0) pdf.addPage();
