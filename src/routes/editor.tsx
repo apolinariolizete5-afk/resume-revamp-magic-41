@@ -219,10 +219,12 @@ function EditorPage() {
 
         <div
           className={cn(
-            "min-w-0 lg:sticky lg:top-28 lg:block lg:self-start",
-            tab !== "preview" && "hidden",
+            "min-w-0 lg:sticky lg:top-28 lg:self-start lg:opacity-100 lg:pointer-events-auto lg:static-safe",
+            tab !== "preview" &&
+              "pointer-events-none fixed top-0 left-[-10000px] w-[380px] opacity-0 lg:relative lg:left-auto lg:w-auto lg:opacity-100 lg:pointer-events-auto",
           )}
         >
+
           <div className="mb-3 flex items-center justify-between gap-2">
             <Button
               size="sm"
