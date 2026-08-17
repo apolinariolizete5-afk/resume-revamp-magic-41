@@ -91,9 +91,10 @@ function Gallery() {
             >
               Incorporar no seu site
             </Link>
-            <Button onClick={() => choose(TEMPLATES[0]!)} size="sm">
+            <Button onClick={() => choose(TEMPLATES[0]!)} size="sm" className="bg-gold text-ink hover:bg-gold/90">
               Criar o meu CV
             </Button>
+
           </div>
         </div>
       </header>
